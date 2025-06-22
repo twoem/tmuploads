@@ -30,7 +30,7 @@ This repository stores various cloud data files for development, prototyping, an
 > ⚠️ Replace `yourfile.ext` with the exact filename you uploaded.
 
 ```plaintext
-https://raw.githubusercontent.com/your-username/twoem/main/peter.pdf
+https://raw.githubusercontent.com/twoem/tmuploads/main/peter.pdf
 ```
 
 > ✅ Example:
