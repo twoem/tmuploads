@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TM Uploads – File Download</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #005f99;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      max-width: 1000px;
+      margin: auto;
+      margin-top: 2rem;
+    }
+    .btn {
+      display: block;
+      text-align: center;
+      padding: 1rem;
+      background: #007acc;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    .btn:hover {
+      background: #005fa3;
+    }
+  </style>
+</head>
+<body>
+  <h1>📁 TM Uploads – Download Files</h1>
+  <div class="container" id="download-links">
+    <!-- Buttons will be inserted here -->
+  </div>
+
+  <script>
+    async function fetchFiles() {
+      const repo = 'twoem/tmuploads';
+      const apiUrl = `https://api.github.com/repos/${repo}/contents/`;
+      const container = document.getElementById('download-links');
+
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (Array.isArray(data)) {
+          const files = data.filter(item => item.type === "file");
+
+          files.forEach(file => {
+            const link = document.createElement('a');
+            link.href = file.download_url;
+            link.className = 'btn';
+            link.textContent = `⬇️ ${file.name}`;
+            link.download = file.name;
+            container.appendChild(link);
+          });
+        } else {
+          container.innerHTML = "<p>Error fetching file list.</p>";
+        }
+      } catch (err) {
+        container.innerHTML = "<p>Failed to load files. Please try again later.</p>";
+        console.error(err);
+      }
+    }
+
+    fetchFiles();
+  </script>
+</body>
+</html>
