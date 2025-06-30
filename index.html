@@ -4,74 +4,213 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TM Uploads – File Download</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary-color: #007bff;
+      --secondary-color: #6c757d;
+      --background-color: #f8f9fa;
+      --text-color: #343a40;
+      --card-background: #ffffff;
+      --shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f0f4f8;
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--background-color);
       margin: 0;
       padding: 2rem;
-      color: #333;
+      color: var(--text-color);
+      line-height: 1.6;
     }
-    h1 {
+
+    header {
       text-align: center;
-      color: #005f99;
+      margin-bottom: 3rem;
     }
+
+    header h1 {
+      font-weight: 700;
+      color: var(--primary-color);
+      font-size: 2.5rem;
+    }
+
     .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-      max-width: 1000px;
+      max-width: 1200px;
       margin: auto;
-      margin-top: 2rem;
+      padding: 0 1rem;
     }
+
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .file-card {
+      background-color: var(--card-background);
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .file-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    .file-name {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary-color);
+      word-break: break-all;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
     .btn {
-      display: block;
-      text-align: center;
-      padding: 1rem;
-      background: #007acc;
-      color: white;
+      flex-grow: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 400;
       text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
-      transition: background 0.3s;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      font-size: 0.9rem;
     }
-    .btn:hover {
-      background: #005fa3;
+
+    .btn-download {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-download:hover {
+      background-color: #0056b3;
+    }
+
+    .btn-copy {
+      background-color: var(--secondary-color);
+      color: white;
+    }
+
+    .btn-copy:hover {
+      background-color: #545b62;
+    }
+
+    .btn:active {
+        transform: scale(0.98);
+    }
+
+    .icon {
+        margin-right: 0.5rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      body {
+        padding: 1rem;
+      }
+      header h1 {
+        font-size: 2rem;
+      }
+      .file-card {
+        padding: 1rem;
+      }
+      .btn-group {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>📁 TM Uploads – Download Files</h1>
-  <div class="container" id="download-links">
-    <!-- Buttons will be inserted here -->
+  <header>
+    <h1>📁 TM Uploads – Download Files</h1>
+  </header>
+  <div class="container">
+    <div class="file-grid" id="file-grid">
+      <!-- File cards will be inserted here -->
+    </div>
   </div>
 
   <script>
     async function fetchFiles() {
-      const repo = 'twoem/tmuploads';
+      const repo = 'twoem/tmuploads'; // Replace with your GitHub username/repo
       const apiUrl = `https://api.github.com/repos/${repo}/contents/`;
-      const container = document.getElementById('download-links');
+      const grid = document.getElementById('file-grid');
 
       try {
         const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error(`GitHub API error: ${response.status}`);
+        }
         const data = await response.json();
 
         if (Array.isArray(data)) {
-          const files = data.filter(item => item.type === "file");
+          const files = data.filter(item => item.type === "file" && !item.name.startsWith('.')); // Filter out dotfiles
+
+          if (files.length === 0) {
+            grid.innerHTML = "<p>No files found in this repository.</p>";
+            return;
+          }
 
           files.forEach(file => {
-            const link = document.createElement('a');
-            link.href = file.download_url;
-            link.className = 'btn';
-            link.textContent = `⬇️ ${file.name}`;
-            link.download = file.name;
-            container.appendChild(link);
+            const card = document.createElement('div');
+            card.className = 'file-card';
+
+            const fileName = document.createElement('div');
+            fileName.className = 'file-name';
+            fileName.textContent = file.name;
+
+            const btnGroup = document.createElement('div');
+            btnGroup.className = 'btn-group';
+
+            const downloadLink = document.createElement('a');
+            downloadLink.href = file.download_url;
+            downloadLink.className = 'btn btn-download';
+            downloadLink.innerHTML = `<span class="icon">⬇️</span> Download`;
+            downloadLink.download = file.name;
+
+            // Copy URL button
+            const copyButton = document.createElement('button');
+            copyButton.className = 'btn btn-copy';
+            copyButton.innerHTML = `<span class="icon">🔗</span> Copy URL`;
+            copyButton.onclick = () => {
+              navigator.clipboard.writeText(file.download_url).then(() => {
+                copyButton.innerHTML = `<span class="icon">✅</span> Copied!`;
+                setTimeout(() => {
+                  copyButton.innerHTML = `<span class="icon">🔗</span> Copy URL`;
+                }, 2000);
+              }).catch(err => {
+                console.error('Failed to copy URL: ', err);
+                copyButton.innerHTML = `<span class="icon">❌</span> Failed`;
+                setTimeout(() => {
+                  copyButton.innerHTML = `<span class="icon">🔗</span> Copy URL`;
+                }, 2000);
+              });
+            };
+
+            btnGroup.appendChild(downloadLink);
+            btnGroup.appendChild(copyButton); // Add copy button to the group
+
+            card.appendChild(fileName);
+            card.appendChild(btnGroup);
+            grid.appendChild(card);
           });
         } else {
-          container.innerHTML = "<p>Error fetching file list.</p>";
+          grid.innerHTML = "<p>Error: Could not parse file list from GitHub API.</p>";
         }
       } catch (err) {
-        container.innerHTML = "<p>Failed to load files. Please try again later.</p>";
+        grid.innerHTML = `<p>Failed to load files: ${err.message}. Please check the repository name and ensure it's public, or try again later.</p>`;
         console.error(err);
       }
     }
