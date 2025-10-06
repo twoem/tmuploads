@@ -1,5 +1,5 @@
-https://twoem.github.io/tmuploads/
-[@WHIZ]([GET YOUR LINK HERE](https://twoem.github.io/tmuploads/))
+
+[]([GET YOUR LINK HERE](https://twoem.github.io/tmuploads/))
 <p align="center">
   <img src="logo.jpg" alt="Cloud Data Logo" width="200"/>
 </p>
